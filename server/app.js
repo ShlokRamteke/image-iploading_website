@@ -1,18 +1,14 @@
 const express = require("express");
-const app=express();
-const port=8004;
+const app = express();
+require("./db/connection");
+const cors = require("cors");
+const router = require("./routes/router");
+const port = 8004;
 
+app.use(express.json());
+app.use(cors());
+app.use(router);
 
-
-
-
-
-app.get("/", (req,res)=>{
-    res.send("server start")
-})
-
-
-
-app.listen(port, ()=>{
-    console.log("Server Started")
-})
+app.listen(port, () => {
+  console.log("Server Started");
+});
