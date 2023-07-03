@@ -57,7 +57,7 @@ const Home = () => {
       )}
       <div className="container mt-2">
         <h1 className="text-center mt-2">
-          Image Upload Projects With Mysql database
+          Image Uploader with SQL
         </h1>
 
         <div className="text-end">
