@@ -1,11 +1,14 @@
+
+
 const express = require("express");
 const router = new express.Router();
 const conn = require("../db/connection");
 const multer = require("multer");
 const moment = require("moment");
 
-//img storage config
-let imgconfig = multer.diskStorage({
+
+// img storage confing
+var imgconfig = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "./uploads");
   },
@@ -14,44 +17,77 @@ let imgconfig = multer.diskStorage({
   },
 });
 
-//img filter
+// img filter
 const isImage = (req, file, callback) => {
   if (file.mimetype.startsWith("image")) {
     callback(null, true);
   } else {
-    callback(null, Error("Only image is allowed"));
+    callback(null, Error("only image is allowd"));
   }
 };
 
-let upload = multer({
+var upload = multer({
   storage: imgconfig,
   fileFilter: isImage,
 });
 
-//register userdata
+// register userdata
 router.post("/register", upload.single("photo"), (req, res) => {
   const { fname } = req.body;
   const { filename } = req.file;
-    
+
   if (!fname || !filename) {
-    res.status(422).json({ status: 422, message: "Fill all the details" });
+    res.status(422).json({ status: 422, message: "fill all the details" });
   }
 
   try {
     let date = moment(new Date()).format("YYYY-MM-DD hh:mm:ss");
-    conn.query("INSERT INTO usersdata SET ?", {
-      username: fname,
-      usersimg: filename,
-      date: date,
-    }, (err, result)=>{
+
+    conn.query(
+      "INSERT INTO usersdata SET ?",
+      { username: fname, usersimg: filename, date: date },
+      (err, result) => {
         if (err) {
-            console.log(err);
-          } else {
-            console.log("data added");
-            res.status(201).json({ status: 201, data: req.body });
-          }
+          console.log(err, "error: register user");
+        } else {
+          console.log("data added");
+          res.status(201).json({ status: 201, data: req.body });
+        }
+      }
+    );
+  } catch (error) {
+    res.status(422).json({ status: 422, error });
+  }
+});
+
+// get user data
+router.get("/getdata", (req, res) => {
+  try {
+    conn.query("SELECT * FROM usersdata", (err, result) => {
+      if (err) {
+        console.log("error: no get user data");
+      } else {
+        console.log("data get");
+        res.status(201).json({ status: 201, data: result });
+      }
     });
-    
+  } catch (error) {
+    res.status(422).json({ status: 422, error });
+  }
+});
+
+// delete user
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
+  try {
+    conn.query(`DELETE FROM usersdata WHERE id ='${id}'`, (err, result) => {
+      if (err) {
+        console.log("error: delete user");
+      } else {
+        console.log("data delete");
+        res.status(201).json({ status: 201, data: result });
+      }
+    });
   } catch (error) {
     res.status(422).json({ status: 422, error });
   }
